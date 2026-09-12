@@ -1,0 +1,21 @@
+# ambiente virtuale (rigenerabile da requirements.txt)
+moschina-env/
+__pycache__/
+*.pyc
+
+# log locali
+*.log
+
+# dataset grezzo hemibrain (200MB+, scaricabile da capo con extract_mb_circuit.py
+# - vedi README): teniamo nel repo solo data/mb_edges.csv e data/mb_neurons.csv,
+# cioe' il sottografo del mushroom body gia' estratto, che e' quello che il
+# progetto usa davvero.
+data/exported-traced-adjacencies-v1.2/
+data/hemibrain_v1.2.tar.gz
+
+# zip originali degli asset Kenney (gia' estratti in web/assets/, non servono duplicati)
+assets/*.zip
+
+# file interni dell'ambiente Claude Code, non contenuto del progetto
+.claude/
+
