@@ -33,7 +33,22 @@ via an ablation that zeroes the recurrent weights while keeping the
 trained input/output layers intact, that the network's correct answers
 are not a shortcut around the connectome-derived computation.
 
-## 1. Motivation and research question
+## 1. Why an identity-like task?
+
+The task's correct action always equals its input. This is a deliberate
+choice, not an oversight: reproducing the input under a recurrent
+transformation is the classic **copy task** used since Hochreiter &
+Schmidhuber (1997) to probe whether a recurrent architecture preserves
+information across recurrent steps, isolating the architecture's
+information-routing capacity from the difficulty of an external task. It
+is the right tool here precisely because our question is about the
+*mask's* effect on signal propagation, not about task difficulty. Two
+facts rule out a trivial architectural shortcut: (i) input and output
+neurons (KC and MBON) are disjoint, so no direct path exists (§4), and
+(ii) zeroing the recurrent weights collapses a 100%-accurate trained
+network to 0% (§7) — the identity behavior is not free, it is computed.
+
+## 2. Motivation and research question
 
 Connectome datasets (FlyWire, hemibrain) provide, for the first time, a
 complete real wiring diagram of a biological brain circuit. A natural
@@ -46,7 +61,7 @@ task, so any advantage would have to come from generic structural
 properties (e.g. degree distribution, path lengths) rather than
 task-specific tuning.
 
-## 2. Data
+## 3. Data
 
 We use **hemibrain v1.2** (Scheffer et al., 2020; distributed by Janelia
 FlyEM), specifically the public "traced adjacencies" export
@@ -65,7 +80,7 @@ output), and 320 dopaminergic neurons (PAM/PPL1/PPL2 — the circuit's
 real reinforcement signal, identified directly from cell-type
 nomenclature, not from separate neurotransmitter-prediction data).
 
-## 3. Model
+## 4. Model
 
 `ConnectomePolicy` is a recurrent network over $N{=}2308$ units. A
 trainable projection maps the input onto the **KC** subset only (the
@@ -84,7 +99,7 @@ optional `LayerNorm` before each `tanh` approximates the global gain
 control the real circuit obtains from the APL neuron (not modeled
 explicitly).
 
-## 4. Task and environment
+## 5. Task and environment
 
 A minimal bar environment: each "customer" orders a random quantity
 (0–3) of four items (coffee, cappuccino, plain croissant, chocolate
@@ -93,7 +108,7 @@ croissant); the network must output the same four quantities. Reward is
 bandit** — the correct action is always exactly the input — which lets us
 compare two very different training signals on the same task.
 
-## 5. Experiments
+## 6. Experiments
 
 **Exp. 1 — weak signal (REINFORCE), single-item version.** On an earlier,
 simpler single-item version of the task, we trained with per-step policy
@@ -139,7 +154,7 @@ weak/noisy training regimes.
 *Figure 1 here: `fig_supervised_training.png` — reward vs. examples seen,
 4 overlapping curves converging to 1.0.*
 
-## 6. Verifying the network is not shortcutting the input
+## 7. Verifying the network is not shortcutting the input
 
 Because the correct action always equals the input, a legitimate concern
 is whether the network is doing anything beyond copying. Two checks:
@@ -152,11 +167,11 @@ is whether the network is doing anything beyond copying. Two checks:
 2. **Recurrent ablation.** On the trained biological network, zeroing
    only $W$ (the recurrent connectome weights) while keeping the trained
    input/output projections intact collapses accuracy from **30/30 to
-   0/30**. Combined with the disjoint KC/MBON sets (§3), this shows the
+   0/30**. Combined with the disjoint KC/MBON sets (§4), this shows the
    correct output is not reachable without the recurrent computation —
    there is no bypass.
 
-## 7. Limitations
+## 8. Limitations
 
 Synapse counts are used as unsigned weights (no excitatory/inhibitory
 sign from neurotransmitter identity); the random-mask control uses a
@@ -167,7 +182,7 @@ fully-observed, which is why the interesting biological-vs-random
 difference is visible only under a weak (RL) signal and not under
 supervision.
 
-## 8. Conclusion
+## 9. Conclusion
 
 A real biological connectome, used as a fixed architectural prior, is not
 a free lunch: under weak training signal it actively underperforms a
